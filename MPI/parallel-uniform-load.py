@@ -1,3 +1,4 @@
+# Distributing load across processes as uniformly as possible
 import numpy as np
 from skimage import data, img_as_float
 import skimage.filters
@@ -7,6 +8,7 @@ import os.path
 import time
 from mpi4py import MPI 
 from numba import jit
+from itertools import chain
 
 curPath = os.path.abspath(os.path.curdir) 
 noisyDir = os.path.join(curPath,'noisy') 
@@ -30,13 +32,13 @@ def parallel():
     totalStartTime = time.time()
     numFiles = int(10/size)
     remainder = int(10%size)
-    if remainder != 0 :
-        if rank < remainder:
-            imgFiles = ["%.4d.jpg"%x for x in range(rank*numFiles+1, (rank+1)*numFiles+2)]
-        else:
-            imgFiles = ["%.4d.jpg"%x for x in range(rank*numFiles+2, (rank+1)*numFiles+2)]
-    else :
-        imgFiles = ["%.4d.jpg"%x for x in range(rank*numFiles+1, (rank+1)*numFiles+1)] 
+    if rank == 0:
+        imgFiles = ["%.4d.jpg"%x for x in chain(range(1, 3), range (6,7), range(4, 5))]
+    elif rank == 1:
+        imgFiles = ["%.4d.jpg"%x for x in chain(range(3, 4), range(5,6), range (9,10))]
+    else:
+        imgFiles = ["%.4d.jpg"%x for x in chain(range(7, 9), range (10,11))]
+
     loop(imgFiles,rank)
     print("Total time %f seconds" %(time.time() - totalStartTime))
 
