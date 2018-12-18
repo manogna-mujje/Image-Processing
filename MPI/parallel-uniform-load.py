@@ -32,13 +32,22 @@ def parallel():
     totalStartTime = time.time()
     numFiles = int(10/size)
     remainder = int(10%size)
-    if rank == 0:
-        imgFiles = ["%.4d.jpg"%x for x in chain(range(1, 3), range (6,7), range(4, 5))]
-    elif rank == 1:
-        imgFiles = ["%.4d.jpg"%x for x in chain(range(3, 4), range(5,6), range (9,10))]
-    else:
-        imgFiles = ["%.4d.jpg"%x for x in chain(range(7, 9), range (10,11))]
-
+    if size == 3:
+        if rank == 0:
+            imgFiles = ["%.4d.jpg"%x for x in chain(range(1, 3), range (6,7), range(4, 5))]
+        elif rank == 1:
+            imgFiles = ["%.4d.jpg"%x for x in chain(range(3, 4), range(5,6), range (9,10))]
+        else:
+            imgFiles = ["%.4d.jpg"%x for x in chain(range(7, 9), range (10,11))]
+    elif size == 4:
+        if rank == 0:
+            imgFiles = ["%.4d.jpg"%x for x in chain(range(1, 3), range (6,7))]
+        elif rank == 1:
+            imgFiles = ["%.4d.jpg"%x for x in chain(range(4, 6) range (9,10))]
+        elif rank == 1:
+            imgFiles = ["%.4d.jpg"%x for x in chain(range(3, 4), range(5,6))]
+        else:
+            imgFiles = ["%.4d.jpg"%x for x in chain(range(7, 9), range (10,11))]
     loop(imgFiles,rank)
     print("Total time %f seconds" %(time.time() - totalStartTime))
 

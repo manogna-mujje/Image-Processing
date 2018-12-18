@@ -32,9 +32,13 @@ def parallel():
     remainder = int(10%size)
     if remainder != 0 :
         if rank < remainder:
-            imgFiles = ["%.4d.jpg"%x for x in range(rank*numFiles+1, (rank+1)*numFiles+2)]
+            start = rank + (rank * numFiles) + 1
+            end = start + numFiles + 1
+            imgFiles = ["%.4d.jpg"%x for x in range(start, end)]
         else:
-            imgFiles = ["%.4d.jpg"%x for x in range(rank*numFiles+2, (rank+1)*numFiles+2)]
+            start = remainder * (numFiles + 1) + (rank - remainder)*numFiles + 1
+            end = start + numFiles
+            imgFiles = ["%.4d.jpg"%x for x in range(start, end)]
     else :
         imgFiles = ["%.4d.jpg"%x for x in range(rank*numFiles+1, (rank+1)*numFiles+1)] 
     loop(imgFiles,rank)
