@@ -71,7 +71,7 @@ int main(int argc, char *argv[]){
   //  #pragma omp parallel 
   //  for(int i =0 ;i<10;i++){
  	gettimeofday(&start_time,NULL);
-           #pragma omp parallel for schedule(static,100) private(j)
+           #pragma omp parallel
 	    for( i = 0 ; i < height; i++){
 		for(j = 0 ; j < width ; j++) {
 		    int row;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]){
 		    double greenSum = 0;
 		    double blueSum = 0;
 		    double weightSum = 0;
-		   
+		    #pragma omp for schedule(static,100) private(j)
 		    for(row = i-radius; row <= i + radius; row++){
 		        for(col = j-radius; col<= j + radius; col++) {
 		            int x = setBoundary(col,0,width-1);
@@ -90,18 +90,40 @@ int main(int argc, char *argv[]){
 		            double sigma = radius*radius;
 		            double weight = exp(-square / (2*sigma)) / (3.14*2*sigma);
 		            redSum += red[tempPos] * weight;
-		            greenSum += green[tempPos] * weight;
-		            blueSum += blue[tempPos] * weight;
 		            weightSum += weight;
 		        }    
 		    }
 		    red[i*width+j] = round(redSum/weightSum);
-		    green[i*width+j] = round(greenSum/weightSum);
-		    blue[i*width+j] = round(blueSum/weightSum);
-		    redSum = 0;
-		    greenSum = 0;
-		    blueSum = 0;
-		    weightSum = 0;
+
+		    #pragma omp for schedule(static,100) private(j)
+		    for(row = i-radius; row <= i + radius; row++){
+		        for(col = j-radius; col<= j + radius; col++) {
+		            int x = setBoundary(col,0,width-1);
+		            int y = setBoundary(row,0,height-1);
+		            int tempPos = y * width + x;
+		            double square = (col-j)*(col-j)+(row-i)*(row-i);
+		            double sigma = radius*radius;
+		            double weight = exp(-square / (2*sigma)) / (3.14*2*sigma);
+		           blueSum += blue[tempPos] * weight;
+		            weightSum += weight;
+		        }    
+		   }
+		   blue[i*width+j] = round(blueSum/weightSum);
+                   
+                  #pragma omp for schedule(static,100) private(j)
+		    for(row = i-radius; row <= i + radius; row++){
+		        for(col = j-radius; col<= j + radius; col++) {
+		            int x = setBoundary(col,0,width-1);
+		            int y = setBoundary(row,0,height-1);
+		            int tempPos = y * width + x;
+		            double square = (col-j)*(col-j)+(row-i)*(row-i);
+		            double sigma = radius*radius;
+		            double weight = exp(-square / (2*sigma)) / (3.14*2*sigma);
+		           greenSum += green[tempPos] * weight;
+		            weightSum += weight;
+		        }    
+		   }
+		   green[i*width+j] = round(greenSum/weightSum);
 		}
 	    }  
     gettimeofday(&stop_time,NULL);
